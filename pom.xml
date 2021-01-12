@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>de.mkienitz.bachelorarbeit</groupId>
+  <artifactId>backend4frontend</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>war</packaging>
+
+  <properties>
+    <final.name>backend4frontend</final.name>
+
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <failOnMissingWebXml>false</failOnMissingWebXml>
+    <maven.compiler.source>1.8</maven.compiler.source>
+
+    <openliberty.maven.version>3.2</openliberty.maven.version>
+    <slf4j.version>1.7.30</slf4j.version>
+    <log4j.version>2.14.0</log4j.version>
+
+    <!-- Liberty configuration -->
+    <openliberty.version>[19.0.0.9,)</openliberty.version>
+    <liberty.var.project.name>${final.name}</liberty.var.project.name>
+    <liberty.var.default.http.port>9080</liberty.var.default.http.port>
+    <liberty.var.default.https.port>9443</liberty.var.default.https.port>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.eclipse.microprofile</groupId>
+      <artifactId>microprofile</artifactId>
+      <version>3.3</version>
+      <type>pom</type>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>2.0.1.Final</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>${final.name}</finalName>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>liberty</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>io.openliberty.tools</groupId>
+            <artifactId>liberty-maven-plugin</artifactId>
+            <version>${openliberty.maven.version}</version>
+            <executions>
+              <execution>
+                <id>package-server</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>create</goal>
+                  <goal>install-feature</goal>
+                  <goal>deploy</goal>
+                  <goal>package</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>target/wlp-package</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+            <configuration>
+              <include>runnable</include>
+              <serverName>${project.build.finalName}</serverName>
+              <bootstrapProperties>
+                <project.name>${project.build.finalName}</project.name>
+                <jwt.issuer>https://server.example.com</jwt.issuer>
+              </bootstrapProperties>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+
+      <dependencies>
+        <dependency>
+          <groupId>io.jaegertracing</groupId>
+          <artifactId>jaeger-client</artifactId>
+          <version>0.34.0</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+</project>
