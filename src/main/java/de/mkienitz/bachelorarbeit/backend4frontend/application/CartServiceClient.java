@@ -8,7 +8,7 @@ import javax.ws.rs.core.Response;
 
 @RegisterRestClient
 @Path("/data/cart")
-public interface ShoppingCartServiceClient {
+public interface CartServiceClient {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

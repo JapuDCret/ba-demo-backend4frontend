@@ -38,7 +38,7 @@ Start
 
     docker run -d --name backend4frontend \
         --env BA_ORDER_SERVICE_URL='http://172.17.0.5:9080/' \
-        --env BA_SHOPPINGCART_SERVICE_URL='http://172.17.0.3:9080/' \
+        --env BA_CART_SERVICE_URL='http://172.17.0.3:9080/' \
         --env BA_TRANSLATION_SERVICE_URL='http://172.17.0.4:9080/' \
         --net=bridge -p 9080:9080 japu/backend4frontend
 
