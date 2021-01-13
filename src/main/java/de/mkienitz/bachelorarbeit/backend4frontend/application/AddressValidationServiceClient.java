@@ -6,14 +6,14 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @RegisterRestClient
-@Path("/data/translations")
-public interface TranslationServiceClient {
+@Path("/data/address-validation")
+public interface AddressValidationServiceClient {
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    Response getTranslations();
+    @Produces("application/json")
+    @Consumes("application/json")
+    Response validateAddress(String orderJson);
 }

@@ -22,7 +22,7 @@ public class Backend4frontendRestApplication extends Application {
         s.add(CORSFilter.class);
         s.add(OrderForwardingResource.class);
         s.add(CartForwardingResource.class);
-        s.add(TranslationForwardingResource.class);
+        s.add(LocalizationForwardingResource.class);
 
         return s;
     }
