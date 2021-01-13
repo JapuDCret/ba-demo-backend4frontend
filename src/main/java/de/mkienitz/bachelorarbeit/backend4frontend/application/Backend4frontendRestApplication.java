@@ -20,9 +20,10 @@ public class Backend4frontendRestApplication extends Application {
         Set<Class<?>> s = new HashSet<Class<?>>();
 
         s.add(CORSFilter.class);
-        s.add(OrderForwardingResource.class);
+        s.add(AddressValidationForwardingResource.class);
         s.add(CartForwardingResource.class);
         s.add(LocalizationForwardingResource.class);
+        s.add(OrderForwardingResource.class);
 
         return s;
     }
