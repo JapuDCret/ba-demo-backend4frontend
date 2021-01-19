@@ -10,6 +10,9 @@
         <Logger name="de.mkienitz.bachelorarbeit" level="debug" additivity="false">
             <AppenderRef ref="LogToConsole"/>
         </Logger>
+        <Logger name="io.jaegertracing" level="info" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
         <Root level="error">
             <AppenderRef ref="LogToConsole"/>
         </Root>

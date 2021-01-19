@@ -1,5 +1,6 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.application;
 
+import org.eclipse.microprofile.opentracing.Traced;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,7 @@ public class AddressValidationForwardingResource {
     }
 
     @POST
+    @Traced(operationName = "AddressValidationForwardingResource.addressValidation")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
     public Response addressValidation(
