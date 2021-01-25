@@ -36,11 +36,15 @@ Liberty Dev Mode (test changes on the fly)
 
 Start
 
-    docker run -d --name backend4frontend \
-        --env BA_ORDER_SERVICE_URL='http://172.17.0.5:9080/' \
-        --env BA_CART_SERVICE_URL='http://172.17.0.3:9080/' \
-        --env BA_TRANSLATION_SERVICE_URL='http://172.17.0.4:9080/' \
-        --net=bridge -p 9080:9080 japu/backend4frontend
+docker run -d --name backend4frontend \
+	--env BA_ORDER_SERVICE_URL='http://172.17.0.5:9080/' \
+	--env BA_CART_SERVICE_URL='http://172.17.0.3:9080/' \
+	--env BA_TRANSLATION_SERVICE_URL='http://172.17.0.4:9080/' \
+	--env BA_ADDRESS_VALIDATION_SERVICE_URL='http://172.17.0.4:9080/' \
+	--env BA_ADDRESS_VALIDATION_SERVICE_URL='http://172.17.0.2:9080/' \
+	--env SPLUNK_HEC_URL='http://172.17.0.4:9080/' \
+	--env SPLUNK_HEC_TOKEN='http://127.0.0.1:9088/' \
+	--net=bridge -p 9080:9080 japu/backend4frontend
 
 Stop & Remove
 
