@@ -44,8 +44,7 @@ Start
 
 Stop & Remove
 
-    docker stop backend4frontend
-    docker rm backend4frontend
+    docker stop backend4frontend && docker rm backend4frontend
 
 ### Publish Image
 
