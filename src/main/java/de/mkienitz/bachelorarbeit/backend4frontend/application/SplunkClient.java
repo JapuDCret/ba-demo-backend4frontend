@@ -5,6 +5,7 @@ import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -25,4 +26,13 @@ public interface SplunkClient {
             value="{de.mkienitz.bachelorarbeit.backend4frontend.util.SplunkConfig.getSplunkAuthHeader}",
             required=true)
     Response postEvent(SplunkOutputEntry entry);
+
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("/event")
+    @ClientHeaderParam(name="Authorization",
+            value="{de.mkienitz.bachelorarbeit.backend4frontend.util.SplunkConfig.getSplunkAuthHeader}",
+            required=true)
+    Response postBatch(String batch);
 }
