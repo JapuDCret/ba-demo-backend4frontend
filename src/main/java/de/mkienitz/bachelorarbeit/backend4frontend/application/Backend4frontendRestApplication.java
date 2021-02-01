@@ -2,6 +2,7 @@ package de.mkienitz.bachelorarbeit.backend4frontend.application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -27,6 +28,8 @@ public class Backend4frontendRestApplication extends Application {
     public static final String ENVVAR_JAEGER_SAMPLE_PARAM = "JAEGER_SAMPLER_PARAM";
     public static final String ENVVAR_SPLUNK_HEC_URL = "SPLUNK_HEC_URL";
     public static final String ENVVAR_SPLUNK_HEC_TOKEN = "SPLUNK_HEC_TOKEN";
+    public static final String ENVVAR_OTEL_EXPORT_HOST = "OTEL_EXPORT_HOST";
+    public static final String ENVVAR_OTEL_EXPORT_PORT = "OTEL_EXPORT_PORT";
 
     public Backend4frontendRestApplication() {
         log.info("env." + ENVVAR_ORDER_SERVICE_URL + " = " + System.getenv(ENVVAR_ORDER_SERVICE_URL));
@@ -40,6 +43,11 @@ public class Backend4frontendRestApplication extends Application {
         log.info("env." + ENVVAR_JAEGER_SAMPLE_PARAM + " = " + System.getenv(ENVVAR_JAEGER_SAMPLE_PARAM));
         log.info("env." + ENVVAR_SPLUNK_HEC_URL + " = " + System.getenv(ENVVAR_SPLUNK_HEC_URL));
         log.info("env." + ENVVAR_SPLUNK_HEC_TOKEN + " = " + System.getenv(ENVVAR_SPLUNK_HEC_TOKEN));
+        log.info("env." + ENVVAR_OTEL_EXPORT_HOST + " = " + System.getenv(ENVVAR_OTEL_EXPORT_HOST));
+        log.info("env." + ENVVAR_OTEL_EXPORT_PORT + " = " + System.getenv(ENVVAR_OTEL_EXPORT_PORT));
+
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
     }
 
     @Override

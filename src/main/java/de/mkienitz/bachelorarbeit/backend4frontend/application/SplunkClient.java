@@ -1,6 +1,7 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.application;
 
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.SplunkOutputEntry;
+import org.eclipse.microprofile.opentracing.Traced;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -21,6 +22,7 @@ public interface SplunkClient {
     @POST
     @Produces("application/json")
     @Consumes("application/json")
+    @Traced(value = false)
     @Path("/event")
     @ClientHeaderParam(name="Authorization",
             value="{de.mkienitz.bachelorarbeit.backend4frontend.util.SplunkConfig.getSplunkAuthHeader}",
@@ -30,6 +32,7 @@ public interface SplunkClient {
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.TEXT_PLAIN)
+    @Traced(value = false)
     @Path("/event")
     @ClientHeaderParam(name="Authorization",
             value="{de.mkienitz.bachelorarbeit.backend4frontend.util.SplunkConfig.getSplunkAuthHeader}",
