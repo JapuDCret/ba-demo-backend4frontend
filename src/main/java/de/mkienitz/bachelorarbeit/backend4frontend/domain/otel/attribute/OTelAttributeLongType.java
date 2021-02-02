@@ -6,11 +6,22 @@ public class OTelAttributeLongType extends OTelAttributeType {
     public OTelAttributeLongType() {
     }
 
+    public OTelAttributeLongType(double longValue) {
+        this.longValue = longValue;
+    }
+
     public double getLongValue() {
         return longValue;
     }
 
     public void setLongValue(double longValue) {
         this.longValue = longValue;
+    }
+
+    @Override
+    public String toString() {
+        return "OTelAttributeLongType{" +
+                "longValue=" + longValue +
+                '}';
     }
 }

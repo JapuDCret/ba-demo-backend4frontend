@@ -10,6 +10,7 @@ import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.resource.OTelReso
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.span.OTelSpan;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.span.OTelSpanEvent;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.span.OTelSpanLink;
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.api.trace.*;
@@ -60,30 +61,33 @@ public class JaegerForwardingService {
         this.exporter = exporter;
     }
 
-    private void insertAttributeValue(final AttributesBuilder attributesBuilder, String key, OTelAttributeType attributeType) {
-        if(attributeType instanceof OTelAttributeBoolType) {
-            attributesBuilder.put(key, ((OTelAttributeBoolType) attributeType).getBoolValue());
-        } else if(attributeType instanceof OTelAttributeDoubleType) {
-            attributesBuilder.put(key, ((OTelAttributeDoubleType) attributeType).getDoubleValue());
-        } else if(attributeType instanceof OTelAttributeKvListType) {
-            AttributesBuilder innerAttributesBuilder = Attributes.builder();
+    public void reportTrace(OTelExportedTrace trace, AsyncResponse ar) {
+        Collection<SpanData> spanDataList = this.convertTraceToSpanData(trace);
 
-            Map<String, OTelAttributeType> kvlistValue = ((OTelAttributeKvListType) attributeType).getKvlistValue();
-            Set<String> keys = kvlistValue.keySet();
-            for(String innerKey : keys) {
-                OTelAttributeType innerAttributeType = kvlistValue.get(innerKey);
-
-                this.insertAttributeValue(innerAttributesBuilder, innerKey, innerAttributeType);
-            }
-
-            attributesBuilder.putAll(innerAttributesBuilder.build());
-        }
+        this.sendTrace(spanDataList, ar);
     }
 
-    public void reportTrace(OTelExportedTrace trace, AsyncResponse ar) {
-        List<OTelResourceSpan> rSpans = trace.getResourceSpans();
+    public void sendTrace(
+            Collection<SpanData> spanDataList,
+            AsyncResponse ar
+    ) {
+        log.info("sendTrace(): spanDataList = " + spanDataList);
 
+        CompletableResultCode resultCode = exporter.export(spanDataList);
+
+        resultCode.whenComplete(() -> {
+            log.info("sendTrace(): resultCode.done = " + resultCode.isDone() + ", resultCode.success = " + resultCode.isSuccess());
+
+            ar.resume(Response.ok().entity(resultCode).build());
+        });
+    }
+
+    private Collection<SpanData> convertTraceToSpanData(OTelExportedTrace trace) {
         Collection<SpanData> spanDataList = new ArrayList<>();
+
+        long currentTimeMillis = System.currentTimeMillis();
+
+        List<OTelResourceSpan> rSpans = trace.getResourceSpans();
 
         for (OTelResourceSpan rSpan : rSpans) {
             OTelResource r = rSpan.getResource();
@@ -114,13 +118,51 @@ public class JaegerForwardingService {
                     String parentSpanId = null == span.getParentSpanId() ? "" : span.getParentSpanId();
                     SpanContext parentSpanContext = SpanContext.create(span.getTraceId(), parentSpanId, traceFlags, traceState);
 
+                    log.trace("convertTraceToSpanData(): span.attributes.size() = " + span.getAttributes().size());
+
                     AttributesBuilder sAttributesBuilder = Attributes.builder();
+                    int i = 0;
                     for(OTelAttribute rAttribute : span.getAttributes()) {
                         OTelAttributeType rAttributesValue = rAttribute.getValue();
 
+                        log.trace("convertTraceToSpanData(): span.attributes[" + i + "] = " + rAttributesValue);
+
                         this.insertAttributeValue(sAttributesBuilder, rAttribute.getKey(), rAttributesValue);
+
+                        i++;
                     }
                     Attributes sAttributes = sAttributesBuilder.build();
+
+
+                    Double currentTime = sAttributes.get(AttributeKey.doubleKey("currentTime"));
+
+                    log.trace("convertTraceToSpanData(): sAttributes.size() = " + sAttributes.size());
+                    log.trace("convertTraceToSpanData(): sAttributes.get(\"currentTime\") = " + currentTime);
+
+                    // fix the time difference between client and server
+                    long startEpochNanos;
+                    long endEpochNanos;
+                    if(null == currentTime) {
+                        log.trace("convertTraceToSpanData(): no currentTime detected, using same values from client");
+
+                        startEpochNanos = span.getStartTimeUnixNano();
+                        endEpochNanos = span.getEndTimeUnixNano();
+                    } else {
+                        long startTimeUnixNano = span.getStartTimeUnixNano();
+                        long endTimeUnixNano = span.getEndTimeUnixNano();
+
+                        log.trace("convertTraceToSpanData(): startTimeUnixNano = " + startTimeUnixNano + ", endTimeUnixNano = " + endTimeUnixNano);
+
+                        log.trace("convertTraceToSpanData(): System.currentTimeMillis() = " + currentTimeMillis);
+                        log.trace("convertTraceToSpanData(): currentTime = " + currentTime);
+                        long timeDiff = (long) (currentTimeMillis - currentTime);
+                        log.trace("convertTraceToSpanData(): timeDiff = " + timeDiff);
+
+                        startEpochNanos = startTimeUnixNano - timeDiff * 1000 * 1000;
+                        endEpochNanos = endTimeUnixNano - timeDiff * 1000 * 1000;
+                    }
+
+                    log.trace("convertTraceToSpanData(): startEpochNanos = " + startEpochNanos + ", endEpochNanos = " + endEpochNanos);
 
                     List<EventData> sEvents = new ArrayList<>();
                     for(OTelSpanEvent event : span.getEvents()) {
@@ -163,12 +205,12 @@ public class JaegerForwardingService {
                     spanData.setInstrumentationLibraryInfo(instrumentationLibraryInfo);
                     spanData.setName(span.getName());
                     spanData.setKind(Span.Kind.CLIENT);
-                    spanData.setStartEpochNanos(span.getStartTimeUnixNano());
+                    spanData.setStartEpochNanos(startEpochNanos);
                     spanData.setAttributes(sAttributes);
                     spanData.setEvents(sEvents);
                     spanData.setLinks(sLinks);
                     spanData.setStatus(statusData);
-                    spanData.setEndEpochNanos(span.getEndTimeUnixNano());
+                    spanData.setEndEpochNanos(endEpochNanos);
                     spanData.setEnded(true);
                     spanData.setTotalRecordedEvents(sEvents.size());
                     spanData.setTotalRecordedLinks(sLinks.size());
@@ -179,21 +221,30 @@ public class JaegerForwardingService {
             }
         }
 
-        this.sendTrace(spanDataList, ar);
+        return spanDataList;
     }
 
-    public void sendTrace(
-            Collection<SpanData> spanDataList,
-            AsyncResponse ar
-    ) {
-        log.info("sendTrace(): spanDataList = " + spanDataList);
+    private void insertAttributeValue(final AttributesBuilder attributesBuilder, String key, OTelAttributeType attributeType) {
+        if(attributeType instanceof OTelAttributeBoolType) {
+            attributesBuilder.put(key, ((OTelAttributeBoolType) attributeType).getBoolValue());
+        } else if(attributeType instanceof OTelAttributeDoubleType) {
+            attributesBuilder.put(key, ((OTelAttributeDoubleType) attributeType).getDoubleValue());
+        } else if(attributeType instanceof OTelAttributeKvListType) {
+            AttributesBuilder innerAttributesBuilder = Attributes.builder();
 
-        CompletableResultCode resultCode = exporter.export(spanDataList);
+            Map<String, OTelAttributeType> kvlistValue = ((OTelAttributeKvListType) attributeType).getKvlistValue();
+            Set<String> keys = kvlistValue.keySet();
+            for(String innerKey : keys) {
+                OTelAttributeType innerAttributeType = kvlistValue.get(innerKey);
 
-        resultCode.whenComplete(() -> {
-            log.info("sendTrace(): resultCode.done = " + resultCode.isDone() + ", resultCode.success = " + resultCode.isSuccess());
+                this.insertAttributeValue(innerAttributesBuilder, innerKey, innerAttributeType);
+            }
 
-            ar.resume(Response.ok().entity(resultCode).build());
-        });
+            attributesBuilder.putAll(innerAttributesBuilder.build());
+        } else if(attributeType instanceof OTelAttributeLongType) {
+            attributesBuilder.put(key, ((OTelAttributeLongType) attributeType).getLongValue());
+        } else if(attributeType instanceof OTelAttributeStringType) {
+            attributesBuilder.put(key, ((OTelAttributeStringType) attributeType).getStringValue());
+        }
     }
 }

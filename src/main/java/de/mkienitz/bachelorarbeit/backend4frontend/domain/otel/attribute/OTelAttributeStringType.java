@@ -6,11 +6,22 @@ public class OTelAttributeStringType extends OTelAttributeType {
     public OTelAttributeStringType() {
     }
 
+    public OTelAttributeStringType(String stringValue) {
+        this.stringValue = stringValue;
+    }
+
     public String getStringValue() {
         return stringValue;
     }
 
     public void setStringValue(String stringValue) {
         this.stringValue = stringValue;
+    }
+
+    @Override
+    public String toString() {
+        return "OTelAttributeStringType{" +
+                "stringValue='" + stringValue + '\'' +
+                '}';
     }
 }

@@ -10,6 +10,14 @@
         <Logger name="de.mkienitz.bachelorarbeit" level="debug" additivity="false">
             <AppenderRef ref="LogToConsole"/>
         </Logger>
+        <Logger name="de.mkienitz.bachelorarbeit.backend4frontend.application.JaegerForwardingService" level="trace" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
+        <!--
+        <Logger name="de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.attribute" level="trace" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
+        -->
         <Logger name="io.jaegertracing" level="info" additivity="false">
             <AppenderRef ref="LogToConsole"/>
         </Logger>

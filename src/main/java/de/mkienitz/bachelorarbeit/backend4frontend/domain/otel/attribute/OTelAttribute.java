@@ -25,4 +25,12 @@ public class OTelAttribute {
     public void setValue(OTelAttributeType value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "OTelAttribute{" +
+                "key='" + key + '\'' +
+                ", value=" + value +
+                '}';
+    }
 }
