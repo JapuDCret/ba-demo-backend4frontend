@@ -1,8 +1,6 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.application;
 
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.OTelExportedTrace;
-import io.opentelemetry.proto.trace.v1.ResourceSpans;
-import io.opentelemetry.sdk.common.CompletableResultCode;
 import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,38 +15,38 @@ import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  *
  */
-@Path("/trace")
+@Path("/")
 @Singleton
-public class JaegerForwardingResource {
+public class TelemetryForwardingResource {
 
-    private static Logger log = LoggerFactory.getLogger(JaegerForwardingResource.class.getName());
+    private static Logger log = LoggerFactory.getLogger(TelemetryForwardingResource.class.getName());
 
     private static ExecutorService executor = Executors.newFixedThreadPool(10);
 
     @Inject
-    private JaegerForwardingService jaegerForwardingService;
+    private TraceForwardingService traceForwardingService;
 
-    public JaegerForwardingResource() { }
+    public TelemetryForwardingResource() { }
 
     @POST
+    @Path("/trace")
     @Traced(value = false)
     @Consumes(MediaType.APPLICATION_JSON)
     public void reportTrace(
             OTelExportedTrace trace,
             @Suspended AsyncResponse ar
-    ) throws IOException {
+    ) {
         log.info("reportTrace(): trace = " + trace);
 
         executor.execute(() -> {
             try {
-                jaegerForwardingService.reportTrace(trace, ar);
+                traceForwardingService.reportTrace(trace, ar);
             } catch(Exception e) {
                 log.warn("reportTrace(): an unknown error occurred, e = ", e);
 

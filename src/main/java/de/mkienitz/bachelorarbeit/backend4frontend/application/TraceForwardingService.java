@@ -33,22 +33,22 @@ import java.util.*;
 /**
  * */
 @ApplicationScoped
-public class JaegerForwardingService {
+public class TraceForwardingService {
 
-    private static Logger log = LoggerFactory.getLogger(JaegerForwardingService.class.getName());
+    private static Logger log = LoggerFactory.getLogger(TraceForwardingService.class.getName());
 
     public static final int JAEGER_AGENT_DEFAULT_PORT = 14268;
     private final JaegerGrpcSpanExporter exporter;
 
-    public JaegerForwardingService() throws Exception {
-        log.debug("JaegerForwardingService(): initializing JaegerGrpcSpanExporter");
+    public TraceForwardingService() throws Exception {
+        log.debug("TraceForwardingService(): initializing JaegerGrpcSpanExporter");
 
         String exportHost = System.getenv(Backend4frontendRestApplication.ENVVAR_OTEL_EXPORT_HOST);
         String exportPort = System.getenv(Backend4frontendRestApplication.ENVVAR_OTEL_EXPORT_PORT);
 
         String exportEndpoint = exportHost + ":" + exportPort;
 
-        log.info("JaegerForwardingService(): exportEndpoint = " + exportEndpoint);
+        log.info("TraceForwardingService(): exportEndpoint = " + exportEndpoint);
 
         JaegerGrpcSpanExporter exporter =
                 JaegerGrpcSpanExporter.builder()
@@ -56,7 +56,7 @@ public class JaegerForwardingService {
                         .setServiceName("frontend")
                         .build();
 
-        log.debug("JaegerForwardingService(): successfully initialized JaegerGrpcSpanExporter");
+        log.debug("TraceForwardingService(): successfully initialized JaegerGrpcSpanExporter");
 
         this.exporter = exporter;
     }

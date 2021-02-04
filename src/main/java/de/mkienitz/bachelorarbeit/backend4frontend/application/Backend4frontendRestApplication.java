@@ -60,7 +60,7 @@ public class Backend4frontendRestApplication extends Application {
         s.add(LocalizationForwardingResource.class);
         s.add(OrderForwardingResource.class);
         s.add(SplunkForwardingResource.class);
-        s.add(JaegerForwardingResource.class);
+        s.add(TelemetryForwardingResource.class);
 
         return s;
     }
