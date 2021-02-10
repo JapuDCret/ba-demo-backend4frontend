@@ -1,83 +1,44 @@
-package de.mkienitz.bachelorarbeit.backend4frontend.application;
+package de.mkienitz.bachelorarbeit.backend4frontend.application.splunk;
 
 import com.blueconic.browscap.*;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.SplunkInputEntry;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.SplunkOutputEntry;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.net.URL;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * */
 @ApplicationScoped
 public class SplunkForwardingService {
 
-    private static Logger log = LoggerFactory.getLogger(SplunkForwardingService.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(SplunkForwardingService.class.getName());
 
-    private final Jsonb jsonb;
+    private Jsonb jsonb;
 
-    private final SplunkClient splunkClient;
+    private UserAgentParser parser;
 
-    private final UserAgentParser parser;
+    @Inject
+    private SplunkClient splunkClient;
 
-    public SplunkForwardingService() throws Exception {
-        log.debug("SplunkForwardingService(): loading JsonbBuilder");
+    @PostConstruct
+    public void postConstruct() throws RuntimeException {
+        log.debug("postConstruct(): loading JsonbBuilder");
 
         this.jsonb = JsonbBuilder.create();
 
-        log.debug("SplunkForwardingService(): successfully loaded JsonbBuilder");
+        log.debug("postConstruct(): successfully loaded JsonbBuilder");
 
-        // Create a trust manager that does not validate certificate chains
-        TrustManager[] trustAllCerts = new TrustManager[] {
-                new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[0];
-                    }
-                    public void checkClientTrusted(
-                            X509Certificate[] certs, String authType) {
-                    }
-                    public void checkServerTrusted(
-                            X509Certificate[] certs, String authType) {
-                    }
-                }
-        };
-
-        // Install the all-trusting trust manager
-        SSLContext sc = SSLContext.getInstance("SSL");
-        sc.init(null, trustAllCerts, new java.security.SecureRandom());
-        // HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-        String splunkHecUrl = System.getenv(Backend4frontendRestApplication.ENVVAR_SPLUNK_HEC_URL);
-
-        log.info(String.format("SplunkForwardingService(): env.%s = %s", Backend4frontendRestApplication.ENVVAR_SPLUNK_HEC_URL, splunkHecUrl));
-
-        log.debug("SplunkForwardingService(): creating SplunkClient");
-
-        URL splunkHecUrl2 = new URL(splunkHecUrl);
-
-        this.splunkClient = RestClientBuilder
-                .newBuilder()
-                .baseUrl(splunkHecUrl2)
-                .hostnameVerifier((hostname, session) -> true)
-                .sslContext(sc)
-                .build(SplunkClient.class);
-
-        log.debug("SplunkForwardingService(): loading parser");
+        log.debug("postConstruct(): loading parser");
 
         try {
             this.parser =
@@ -102,13 +63,13 @@ public class SplunkForwardingService {
                             BrowsCapField.IS_ANONYMIZED,
                             BrowsCapField.IS_MODIFIED
                     ));
+
+            log.debug("postConstruct(): successfully loaded parser");
         } catch(IOException | ParseException e) {
-            log.error("SplunkForwardingService(): could not load parser, e = ", e);
+            log.error("postConstruct(): could not load parser, e = ", e);
 
-            throw e;
+            throw new RuntimeException(e);
         }
-
-        log.debug("SplunkForwardingService(): successfully loaded parser");
     }
 
     public Response forwardLog(
@@ -134,10 +95,22 @@ public class SplunkForwardingService {
     }
 
     public Response forwardBatch(List<SplunkInputEntry> batch, String ip, String userAgent) {
+        String batchJson = this.createBatchJson(batch, ip, userAgent);
+
+        log.info("forwardBatch(): forwarding to Splunk");
+
+        Response splunkResponse = splunkClient.postBatch(batchJson.toString());
+
+        log.info("forwardBatch(): splunkResponse.status = " + splunkResponse.getStatus());
+
+        return splunkResponse;
+    }
+
+    private String createBatchJson(List<SplunkInputEntry> batch, String ip, String userAgent) {
+        log.debug("forwardBatch(): converting batch to json");
+
         String currentTime = this.getCurrentTimeFormatted();
         Map<String, Object> capabilities = this.extractBrowserCapabilities(userAgent);
-
-        log.debug("forwardBatch(): converting batch to json");
 
         // format these as stacked jsons, as specified here
         // https://docs.splunk.com/Documentation/Splunk/8.1.1/Data/FormateventsforHTTPEventCollector
@@ -161,13 +134,7 @@ public class SplunkForwardingService {
 
         log.debug("forwardBatch(): batchJson.length = " + batchJson.length());
 
-        log.info("forwardBatch(): forwarding to Splunk");
-
-        Response splunkResponse = splunkClient.postBatch(batchJson.toString());
-
-        log.info("forwardBatch(): splunkResponse.status = " + splunkResponse.getStatus());
-
-        return splunkResponse;
+        return batchJson.toString();
     }
 
     private SplunkOutputEntry createOutputEntry(SplunkInputEntry inputEntry, String currentTime, String ip, String userAgent, Map<String, Object> capabilities) {

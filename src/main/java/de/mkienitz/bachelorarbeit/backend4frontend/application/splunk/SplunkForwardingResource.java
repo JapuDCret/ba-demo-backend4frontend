@@ -1,4 +1,4 @@
-package de.mkienitz.bachelorarbeit.backend4frontend.application;
+package de.mkienitz.bachelorarbeit.backend4frontend.application.splunk;
 
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.SplunkInputEntry;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -6,8 +6,8 @@ import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -19,20 +19,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-/**
- *
- */
 @Path("/")
-@Singleton
+@RequestScoped
 public class SplunkForwardingResource {
 
-    private static Logger log = LoggerFactory.getLogger(SplunkForwardingResource.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(SplunkForwardingResource.class.getName());
 
     @Inject
     private SplunkForwardingService service;
-
-    public SplunkForwardingResource() {
-    }
 
     @POST
     @Path("log")

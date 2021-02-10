@@ -1,5 +1,11 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.application;
 
+import de.mkienitz.bachelorarbeit.backend4frontend.application.addressvalidation.AddressValidationForwardingResource;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.cart.CartForwardingResource;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.localization.LocalizationForwardingResource;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.order.OrderForwardingResource;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.splunk.SplunkForwardingResource;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.telemetry.TelemetryForwardingResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -9,13 +15,10 @@ import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- *
- */
 @ApplicationPath("/data")
 public class Backend4frontendRestApplication extends Application {
 
-    private static Logger log = LoggerFactory.getLogger(Backend4frontendRestApplication.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(Backend4frontendRestApplication.class.getName());
 
     public static final String ENVVAR_ORDER_SERVICE_URL = "BA_ORDER_SERVICE_URL";
     public static final String ENVVAR_CART_SERVICE_URL = "BA_CART_SERVICE_URL";

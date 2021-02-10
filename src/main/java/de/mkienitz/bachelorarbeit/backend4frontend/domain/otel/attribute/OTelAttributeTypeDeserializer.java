@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 
 public class OTelAttributeTypeDeserializer implements JsonbDeserializer<OTelAttribute> {
 
-    private static Logger log = LoggerFactory.getLogger(OTelAttributeTypeDeserializer.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(OTelAttributeTypeDeserializer.class.getName());
 
     @Override
     public OTelAttribute deserialize(JsonParser parser, DeserializationContext ctx, Type type) {

@@ -1,5 +1,6 @@
-package de.mkienitz.bachelorarbeit.backend4frontend.application;
+package de.mkienitz.bachelorarbeit.backend4frontend.application.telemetry;
 
+import de.mkienitz.bachelorarbeit.backend4frontend.application.Backend4frontendRestApplication;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.OTelExportedTrace;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.attribute.*;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.exporter.ExporterSpanData;
@@ -25,30 +26,29 @@ import io.opentelemetry.sdk.trace.data.StatusData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.core.Response;
 import java.util.*;
 
-/**
- * */
 @ApplicationScoped
 public class TraceForwardingService {
 
-    private static Logger log = LoggerFactory.getLogger(TraceForwardingService.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(TraceForwardingService.class.getName());
 
-    public static final int JAEGER_AGENT_DEFAULT_PORT = 14268;
-    private final JaegerGrpcSpanExporter exporter;
+    private JaegerGrpcSpanExporter exporter;
 
-    public TraceForwardingService() throws Exception {
-        log.debug("TraceForwardingService(): initializing JaegerGrpcSpanExporter");
+    @PostConstruct
+    public void postConstruct() {
+        log.debug("postConstruct(): initializing JaegerGrpcSpanExporter");
 
         String exportHost = System.getenv(Backend4frontendRestApplication.ENVVAR_OTEL_EXPORT_HOST);
         String exportPort = System.getenv(Backend4frontendRestApplication.ENVVAR_OTEL_EXPORT_PORT);
 
         String exportEndpoint = exportHost + ":" + exportPort;
 
-        log.info("TraceForwardingService(): exportEndpoint = " + exportEndpoint);
+        log.info("postConstruct(): exportEndpoint = " + exportEndpoint);
 
         JaegerGrpcSpanExporter exporter =
                 JaegerGrpcSpanExporter.builder()
@@ -56,7 +56,7 @@ public class TraceForwardingService {
                         .setServiceName("frontend")
                         .build();
 
-        log.debug("TraceForwardingService(): successfully initialized JaegerGrpcSpanExporter");
+        log.debug("postConstruct(): successfully initialized JaegerGrpcSpanExporter");
 
         this.exporter = exporter;
     }
