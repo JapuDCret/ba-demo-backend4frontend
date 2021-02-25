@@ -1,6 +1,6 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.application.telemetry;
 
-import de.mkienitz.bachelorarbeit.backend4frontend.application.Backend4frontendRestApplication;
+import de.mkienitz.bachelorarbeit.backend4frontend.Backend4frontendRestApplication;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.OTelExportedTrace;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.attribute.*;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.exporter.ExporterSpanData;
@@ -33,22 +33,22 @@ import javax.ws.rs.core.Response;
 import java.util.*;
 
 @ApplicationScoped
-public class TraceForwardingService {
+public class TraceForwardingApplicationService {
 
-    private static final Logger log = LoggerFactory.getLogger(TraceForwardingService.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(TraceForwardingApplicationService.class.getName());
 
     private JaegerGrpcSpanExporter exporter;
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("postConstruct(): initializing JaegerGrpcSpanExporter");
+        LOGGER.debug("postConstruct(): initializing JaegerGrpcSpanExporter");
 
         String exportHost = System.getenv(Backend4frontendRestApplication.ENVVAR_OTEL_EXPORT_HOST);
         String exportPort = System.getenv(Backend4frontendRestApplication.ENVVAR_OTEL_EXPORT_PORT);
 
         String exportEndpoint = exportHost + ":" + exportPort;
 
-        log.info("postConstruct(): exportEndpoint = " + exportEndpoint);
+        LOGGER.info("postConstruct(): exportEndpoint = " + exportEndpoint);
 
         JaegerGrpcSpanExporter exporter =
                 JaegerGrpcSpanExporter.builder()
@@ -56,7 +56,7 @@ public class TraceForwardingService {
                         .setServiceName("frontend")
                         .build();
 
-        log.debug("postConstruct(): successfully initialized JaegerGrpcSpanExporter");
+        LOGGER.debug("postConstruct(): successfully initialized JaegerGrpcSpanExporter");
 
         this.exporter = exporter;
     }
@@ -71,12 +71,12 @@ public class TraceForwardingService {
             Collection<SpanData> spanDataList,
             AsyncResponse ar
     ) {
-        log.info("sendTrace(): spanDataList = " + spanDataList);
+        LOGGER.info("sendTrace(): spanDataList = " + spanDataList);
 
         CompletableResultCode resultCode = exporter.export(spanDataList);
 
         resultCode.whenComplete(() -> {
-            log.info("sendTrace(): resultCode.done = " + resultCode.isDone() + ", resultCode.success = " + resultCode.isSuccess());
+            LOGGER.info("sendTrace(): resultCode.done = " + resultCode.isDone() + ", resultCode.success = " + resultCode.isSuccess());
 
             ar.resume(Response.ok().entity(resultCode).build());
         });
@@ -118,14 +118,14 @@ public class TraceForwardingService {
                     String parentSpanId = null == span.getParentSpanId() ? "" : span.getParentSpanId();
                     SpanContext parentSpanContext = SpanContext.create(span.getTraceId(), parentSpanId, traceFlags, traceState);
 
-                    log.trace("convertTraceToSpanData(): span.attributes.size() = " + span.getAttributes().size());
+                    LOGGER.trace("convertTraceToSpanData(): span.attributes.size() = " + span.getAttributes().size());
 
                     AttributesBuilder sAttributesBuilder = Attributes.builder();
                     int i = 0;
                     for(OTelAttribute rAttribute : span.getAttributes()) {
                         OTelAttributeType rAttributesValue = rAttribute.getValue();
 
-                        log.trace("convertTraceToSpanData(): span.attributes[" + i + "] = " + rAttributesValue);
+                        LOGGER.trace("convertTraceToSpanData(): span.attributes[" + i + "] = " + rAttributesValue);
 
                         this.insertAttributeValue(sAttributesBuilder, rAttribute.getKey(), rAttributesValue);
 
@@ -136,14 +136,14 @@ public class TraceForwardingService {
 
                     Double currentTime = sAttributes.get(AttributeKey.doubleKey("currentTime"));
 
-                    log.trace("convertTraceToSpanData(): sAttributes.size() = " + sAttributes.size());
-                    log.trace("convertTraceToSpanData(): sAttributes.get(\"currentTime\") = " + currentTime);
+                    LOGGER.trace("convertTraceToSpanData(): sAttributes.size() = " + sAttributes.size());
+                    LOGGER.trace("convertTraceToSpanData(): sAttributes.get(\"currentTime\") = " + currentTime);
 
                     // fix the time difference between client and server
                     long startEpochNanos;
                     long endEpochNanos;
                     if(null == currentTime) {
-                        log.trace("convertTraceToSpanData(): no currentTime detected, using same values from client");
+                        LOGGER.trace("convertTraceToSpanData(): no currentTime detected, using same values from client");
 
                         startEpochNanos = span.getStartTimeUnixNano();
                         endEpochNanos = span.getEndTimeUnixNano();
@@ -151,18 +151,18 @@ public class TraceForwardingService {
                         long startTimeUnixNano = span.getStartTimeUnixNano();
                         long endTimeUnixNano = span.getEndTimeUnixNano();
 
-                        log.trace("convertTraceToSpanData(): startTimeUnixNano = " + startTimeUnixNano + ", endTimeUnixNano = " + endTimeUnixNano);
+                        LOGGER.trace("convertTraceToSpanData(): startTimeUnixNano = " + startTimeUnixNano + ", endTimeUnixNano = " + endTimeUnixNano);
 
-                        log.trace("convertTraceToSpanData(): System.currentTimeMillis() = " + currentTimeMillis);
-                        log.trace("convertTraceToSpanData(): currentTime = " + currentTime);
+                        LOGGER.trace("convertTraceToSpanData(): System.currentTimeMillis() = " + currentTimeMillis);
+                        LOGGER.trace("convertTraceToSpanData(): currentTime = " + currentTime);
                         long timeDiff = (long) (currentTimeMillis - currentTime);
-                        log.trace("convertTraceToSpanData(): timeDiff = " + timeDiff);
+                        LOGGER.trace("convertTraceToSpanData(): timeDiff = " + timeDiff);
 
                         startEpochNanos = startTimeUnixNano - timeDiff * 1000 * 1000;
                         endEpochNanos = endTimeUnixNano - timeDiff * 1000 * 1000;
                     }
 
-                    log.trace("convertTraceToSpanData(): startEpochNanos = " + startEpochNanos + ", endEpochNanos = " + endEpochNanos);
+                    LOGGER.trace("convertTraceToSpanData(): startEpochNanos = " + startEpochNanos + ", endEpochNanos = " + endEpochNanos);
 
                     List<EventData> sEvents = new ArrayList<>();
                     for(OTelSpanEvent event : span.getEvents()) {

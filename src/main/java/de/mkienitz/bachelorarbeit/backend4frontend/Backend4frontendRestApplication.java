@@ -1,4 +1,4 @@
-package de.mkienitz.bachelorarbeit.backend4frontend.application;
+package de.mkienitz.bachelorarbeit.backend4frontend;
 
 import de.mkienitz.bachelorarbeit.backend4frontend.application.addressvalidation.AddressValidationForwardingResource;
 import de.mkienitz.bachelorarbeit.backend4frontend.application.cart.CartForwardingResource;
@@ -18,7 +18,7 @@ import java.util.Set;
 @ApplicationPath("/data")
 public class Backend4frontendRestApplication extends Application {
 
-    private static final Logger log = LoggerFactory.getLogger(Backend4frontendRestApplication.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(Backend4frontendRestApplication.class.getName());
 
     public static final String ENVVAR_ORDER_SERVICE_URL = "BA_ORDER_SERVICE_URL";
     public static final String ENVVAR_CART_SERVICE_URL = "BA_CART_SERVICE_URL";
@@ -35,19 +35,19 @@ public class Backend4frontendRestApplication extends Application {
     public static final String ENVVAR_OTEL_EXPORT_PORT = "OTEL_EXPORT_PORT";
 
     public Backend4frontendRestApplication() {
-        log.info("env." + ENVVAR_ORDER_SERVICE_URL + " = " + System.getenv(ENVVAR_ORDER_SERVICE_URL));
-        log.info("env." + ENVVAR_CART_SERVICE_URL + " = " + System.getenv(ENVVAR_CART_SERVICE_URL));
-        log.info("env." + ENVVAR_ADDRESSVALIDATION_SERVICE_URL + " = " + System.getenv(ENVVAR_ADDRESSVALIDATION_SERVICE_URL));
-        log.info("env." + ENVVAR_LOCALIZATION_SERVICE_URL + " = " + System.getenv(ENVVAR_LOCALIZATION_SERVICE_URL));
-        log.info("env." + ENVVAR_JAEGER_SERVICE_NAME + " = " + System.getenv(ENVVAR_JAEGER_SERVICE_NAME));
-        log.info("env." + ENVVAR_JAEGER_AGENT_HOST + " = " + System.getenv(ENVVAR_JAEGER_AGENT_HOST));
-        log.info("env." + ENVVAR_JAEGER_REPORTER_LOG_SPANS + " = " + System.getenv(ENVVAR_JAEGER_REPORTER_LOG_SPANS));
-        log.info("env." + ENVVAR_JAEGER_SAMPLER_TYPE + " = " + System.getenv(ENVVAR_JAEGER_SAMPLER_TYPE));
-        log.info("env." + ENVVAR_JAEGER_SAMPLE_PARAM + " = " + System.getenv(ENVVAR_JAEGER_SAMPLE_PARAM));
-        log.info("env." + ENVVAR_SPLUNK_HEC_URL + " = " + System.getenv(ENVVAR_SPLUNK_HEC_URL));
-        log.info("env." + ENVVAR_SPLUNK_HEC_TOKEN + " = " + System.getenv(ENVVAR_SPLUNK_HEC_TOKEN));
-        log.info("env." + ENVVAR_OTEL_EXPORT_HOST + " = " + System.getenv(ENVVAR_OTEL_EXPORT_HOST));
-        log.info("env." + ENVVAR_OTEL_EXPORT_PORT + " = " + System.getenv(ENVVAR_OTEL_EXPORT_PORT));
+        LOGGER.info("env." + ENVVAR_ORDER_SERVICE_URL + " = " + System.getenv(ENVVAR_ORDER_SERVICE_URL));
+        LOGGER.info("env." + ENVVAR_CART_SERVICE_URL + " = " + System.getenv(ENVVAR_CART_SERVICE_URL));
+        LOGGER.info("env." + ENVVAR_ADDRESSVALIDATION_SERVICE_URL + " = " + System.getenv(ENVVAR_ADDRESSVALIDATION_SERVICE_URL));
+        LOGGER.info("env." + ENVVAR_LOCALIZATION_SERVICE_URL + " = " + System.getenv(ENVVAR_LOCALIZATION_SERVICE_URL));
+        LOGGER.info("env." + ENVVAR_JAEGER_SERVICE_NAME + " = " + System.getenv(ENVVAR_JAEGER_SERVICE_NAME));
+        LOGGER.info("env." + ENVVAR_JAEGER_AGENT_HOST + " = " + System.getenv(ENVVAR_JAEGER_AGENT_HOST));
+        LOGGER.info("env." + ENVVAR_JAEGER_REPORTER_LOG_SPANS + " = " + System.getenv(ENVVAR_JAEGER_REPORTER_LOG_SPANS));
+        LOGGER.info("env." + ENVVAR_JAEGER_SAMPLER_TYPE + " = " + System.getenv(ENVVAR_JAEGER_SAMPLER_TYPE));
+        LOGGER.info("env." + ENVVAR_JAEGER_SAMPLE_PARAM + " = " + System.getenv(ENVVAR_JAEGER_SAMPLE_PARAM));
+        LOGGER.info("env." + ENVVAR_SPLUNK_HEC_URL + " = " + System.getenv(ENVVAR_SPLUNK_HEC_URL));
+        LOGGER.info("env." + ENVVAR_SPLUNK_HEC_TOKEN + " = " + System.getenv(ENVVAR_SPLUNK_HEC_TOKEN));
+        LOGGER.info("env." + ENVVAR_OTEL_EXPORT_HOST + " = " + System.getenv(ENVVAR_OTEL_EXPORT_HOST));
+        LOGGER.info("env." + ENVVAR_OTEL_EXPORT_PORT + " = " + System.getenv(ENVVAR_OTEL_EXPORT_PORT));
 
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();

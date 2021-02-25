@@ -18,15 +18,16 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Objects;
 
 @Path("/")
 @RequestScoped
 public class SplunkForwardingResource {
 
-    private static final Logger log = LoggerFactory.getLogger(SplunkForwardingResource.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(SplunkForwardingResource.class.getName());
 
     @Inject
-    private SplunkForwardingService service;
+    private SplunkForwardingApplicationService service;
 
     @POST
     @Path("log")
@@ -38,7 +39,7 @@ public class SplunkForwardingResource {
             @Context HttpHeaders headers,
             @NotNull SplunkInputEntry inputEntry
     ) {
-        log.info("log(): inputEntry = " + inputEntry);
+        LOGGER.info("log(): inputEntry = " + inputEntry);
 
         String ip = getIP(servletRequest);
         String userAgent = getUserAgent(servletRequest);
@@ -58,7 +59,7 @@ public class SplunkForwardingResource {
             @Context HttpHeaders headers,
             @NotNull List<SplunkInputEntry> batch
     ) {
-        log.info("logBatch(): batch.size = " + batch.size());
+        LOGGER.info("logBatch(): batch.size = " + batch.size());
 
         String ip = getIP(servletRequest);
         String userAgent = getUserAgent(servletRequest);
@@ -73,12 +74,8 @@ public class SplunkForwardingResource {
     }
 
     private static String getUserAgent(HttpServletRequest request) {
-        String userAgent = "n/a";
+        String userAgent = request.getHeader("User-Agent");
 
-        try {
-            userAgent = request.getHeader("User-Agent");
-        } catch (Exception ignored){}
-
-        return userAgent;
+        return Objects.isNull(userAgent) ? "n/a" : userAgent;
     }
 }

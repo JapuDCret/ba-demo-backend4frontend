@@ -1,34 +1,34 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.application.cart;
 
-import de.mkienitz.bachelorarbeit.backend4frontend.application.Backend4frontendRestApplication;
+import de.mkienitz.bachelorarbeit.backend4frontend.Backend4frontendRestApplication;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 
+@ApplicationScoped
 public class CartServiceClientFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(CartServiceClientFactory.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(CartServiceClientFactory.class.getName());
 
     @Produces
     public CartServiceClient createClient() throws MalformedURLException {
-        String cartServiceUrl = System.getenv(Backend4frontendRestApplication.ENVVAR_CART_SERVICE_URL);
+        URI cartServiceUri = URI.create(System.getenv(Backend4frontendRestApplication.ENVVAR_CART_SERVICE_URL));
 
-        log.info(String.format("createClient(): env.%s = %s", Backend4frontendRestApplication.ENVVAR_CART_SERVICE_URL, cartServiceUrl));
+        LOGGER.info(String.format("createClient(): env.%s = %s", Backend4frontendRestApplication.ENVVAR_CART_SERVICE_URL, cartServiceUri));
 
-        log.debug("createClient(): creating CartServiceClient");
-
-        URL cartServiceUrl2 = new URL(cartServiceUrl);
+        LOGGER.debug("createClient(): creating CartServiceClient");
 
         CartServiceClient cartServiceClient = RestClientBuilder
                 .newBuilder()
-                .baseUrl(cartServiceUrl2)
+                .baseUrl(cartServiceUri.toURL())
                 .build(CartServiceClient.class);
 
-        log.debug("createClient(): successfully created CartServiceClient");
+        LOGGER.debug("createClient(): successfully created CartServiceClient");
 
         return cartServiceClient;
     }

@@ -21,12 +21,12 @@ import java.util.concurrent.Executors;
 @RequestScoped
 public class TelemetryForwardingResource {
 
-    private static final Logger log = LoggerFactory.getLogger(TelemetryForwardingResource.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(TelemetryForwardingResource.class.getName());
 
     private static ExecutorService executor = Executors.newFixedThreadPool(10);
 
     @Inject
-    private TraceForwardingService traceForwardingService;
+    private TraceForwardingApplicationService service;
 
     @POST
     @Traced(value = false)
@@ -35,16 +35,18 @@ public class TelemetryForwardingResource {
             OTelExportedTrace trace,
             @Suspended AsyncResponse ar
     ) {
-        log.info("reportTrace(): trace = " + trace);
+        LOGGER.info("reportTrace(): trace = " + trace);
 
         // use async response to finish the request once the trace has been reported
         executor.execute(() -> {
             try {
-                traceForwardingService.reportTrace(trace, ar);
+                service.reportTrace(trace, ar);
             } catch(Exception e) {
-                log.warn("reportTrace(): an unknown error occurred, e = ", e);
+                LOGGER.warn("reportTrace(): an unknown error occurred, e = ", e);
 
-                ar.resume(Response.serverError().entity(e).build());
+                final String errMsg = "Anfrage zum Tracedienst war nicht erfolgreich, Fehler = " + e.getMessage();
+
+                ar.resume(Response.status(Response.Status.BAD_GATEWAY).entity(errMsg).build());
             }
         });
     }

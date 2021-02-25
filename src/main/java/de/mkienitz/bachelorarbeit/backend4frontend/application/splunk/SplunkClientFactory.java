@@ -1,29 +1,31 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.application.splunk;
 
-import de.mkienitz.bachelorarbeit.backend4frontend.application.Backend4frontendRestApplication;
+import de.mkienitz.bachelorarbeit.backend4frontend.Backend4frontendRestApplication;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
+@ApplicationScoped
 public class SplunkClientFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(SplunkClientFactory.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(SplunkClientFactory.class.getName());
 
     @Produces
     public SplunkClient createClient() throws MalformedURLException, NoSuchAlgorithmException, KeyManagementException {
-        String splunkHecUrl = System.getenv(Backend4frontendRestApplication.ENVVAR_SPLUNK_HEC_URL);
+        URI splunkHecUri = URI.create(System.getenv(Backend4frontendRestApplication.ENVVAR_SPLUNK_HEC_URL));
 
-        log.info(String.format("createClient(): env.%s = %s", Backend4frontendRestApplication.ENVVAR_SPLUNK_HEC_URL, splunkHecUrl));
+        LOGGER.info(String.format("createClient(): env.%s = %s", Backend4frontendRestApplication.ENVVAR_SPLUNK_HEC_URL, splunkHecUri));
 
         // Create a trust manager that does not validate certificate chains
         TrustManager[] trustAllCerts = new TrustManager[] {
@@ -44,18 +46,16 @@ public class SplunkClientFactory {
         SSLContext sc = SSLContext.getInstance("SSL");
         sc.init(null, trustAllCerts, new java.security.SecureRandom());
 
-        log.debug("createClient(): creating SplunkClient");
-
-        URL splunkHecUrl2 = new URL(splunkHecUrl);
+        LOGGER.debug("createClient(): creating SplunkClient");
 
         SplunkClient splunkClient = RestClientBuilder
                 .newBuilder()
-                .baseUrl(splunkHecUrl2)
+                .baseUrl(splunkHecUri.toURL())
                 .hostnameVerifier((hostname, session) -> true)
                 .sslContext(sc)
                 .build(SplunkClient.class);
 
-        log.debug("createClient(): successfully created SplunkClient");
+        LOGGER.debug("createClient(): successfully created SplunkClient");
 
         return splunkClient;
     }

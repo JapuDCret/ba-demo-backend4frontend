@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 
 public class OTelAttributeTypeDeserializer implements JsonbDeserializer<OTelAttribute> {
 
-    private static final Logger log = LoggerFactory.getLogger(OTelAttributeTypeDeserializer.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(OTelAttributeTypeDeserializer.class.getName());
 
     @Override
     public OTelAttribute deserialize(JsonParser parser, DeserializationContext ctx, Type type) {
@@ -27,11 +27,11 @@ public class OTelAttributeTypeDeserializer implements JsonbDeserializer<OTelAttr
             } else if (event1 == JsonParser.Event.KEY_NAME && parser.getString().equals("value")) {
                 // Deserialize inner object
                 JsonParser.Event event2 = parser.next();
-                log.trace("deserialize(): event2 = " + event2);
+                LOGGER.trace("deserialize(): event2 = " + event2);
 
                 OTelAttributeType attributeType = ctx.deserialize(OTelAttributeType.class, parser);
 
-                log.trace("deserialize(): attributeType = " + attributeType);
+                LOGGER.trace("deserialize(): attributeType = " + attributeType);
 
                 attribute.setValue(attributeType);
             }

@@ -3,6 +3,7 @@ package de.mkienitz.bachelorarbeit.backend4frontend.application.splunk;
 import com.blueconic.browscap.*;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.SplunkInputEntry;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.SplunkOutputEntry;
+import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
-public class SplunkForwardingService {
+public class SplunkForwardingApplicationService {
 
-    private static final Logger log = LoggerFactory.getLogger(SplunkForwardingService.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(SplunkForwardingApplicationService.class.getName());
 
     private Jsonb jsonb;
 
@@ -31,14 +32,14 @@ public class SplunkForwardingService {
     private SplunkClient splunkClient;
 
     @PostConstruct
-    public void postConstruct() throws RuntimeException {
-        log.debug("postConstruct(): loading JsonbBuilder");
+    public void init() throws RuntimeException {
+        LOGGER.debug("init(): loading JsonbBuilder");
 
         this.jsonb = JsonbBuilder.create();
 
-        log.debug("postConstruct(): successfully loaded JsonbBuilder");
+        LOGGER.debug("init(): successfully loaded JsonbBuilder");
 
-        log.debug("postConstruct(): loading parser");
+        LOGGER.debug("init(): loading parser");
 
         try {
             this.parser =
@@ -64,50 +65,52 @@ public class SplunkForwardingService {
                             BrowsCapField.IS_MODIFIED
                     ));
 
-            log.debug("postConstruct(): successfully loaded parser");
+            LOGGER.debug("init(): successfully loaded parser");
         } catch(IOException | ParseException e) {
-            log.error("postConstruct(): could not load parser, e = ", e);
+            LOGGER.error("init(): could not load parser, e = ", e);
 
-            throw new RuntimeException(e);
+            throw new RuntimeException("could not load parser", e);
         }
     }
 
+    @Traced(value = false)
     public Response forwardLog(
             SplunkInputEntry inputEntry,
             String ip,
             String userAgent
     ) {
-        log.info("forwardLog(): inputEntry = " + inputEntry);
+        LOGGER.info("forwardLog(): inputEntry = " + inputEntry);
 
         String currentTime = this.getCurrentTimeFormatted();
         Map<String, Object> capabilities = this.extractBrowserCapabilities(userAgent);
 
         SplunkOutputEntry outputEntry = this.createOutputEntry(inputEntry, currentTime, ip, userAgent, capabilities);
-        log.debug("forwardLog(): outputEntry = " + outputEntry);
+        LOGGER.debug("forwardLog(): outputEntry = " + outputEntry);
 
-        log.info("forwardLog(): forwarding to Splunk");
+        LOGGER.info("forwardLog(): forwarding to Splunk");
 
         Response splunkResponse = splunkClient.postEvent(outputEntry);
 
-        log.info("forwardLog(): splunkResponse.status = " + splunkResponse.getStatus());
+        LOGGER.info("forwardLog(): splunkResponse.status = " + splunkResponse.getStatus());
 
         return splunkResponse;
     }
 
+    @Traced(value = false)
     public Response forwardBatch(List<SplunkInputEntry> batch, String ip, String userAgent) {
         String batchJson = this.createBatchJson(batch, ip, userAgent);
 
-        log.info("forwardBatch(): forwarding to Splunk");
+        LOGGER.info("forwardBatch(): forwarding to Splunk");
 
         Response splunkResponse = splunkClient.postBatch(batchJson.toString());
 
-        log.info("forwardBatch(): splunkResponse.status = " + splunkResponse.getStatus());
+        LOGGER.info("forwardBatch(): splunkResponse.status = " + splunkResponse.getStatus());
 
         return splunkResponse;
     }
 
     private String createBatchJson(List<SplunkInputEntry> batch, String ip, String userAgent) {
-        log.debug("forwardBatch(): converting batch to json");
+        LOGGER.debug("forwardBatch(): converting batch to json");
 
         String currentTime = this.getCurrentTimeFormatted();
         Map<String, Object> capabilities = this.extractBrowserCapabilities(userAgent);
@@ -121,7 +124,7 @@ public class SplunkForwardingService {
 
             SplunkOutputEntry outputEntry = this.createOutputEntry(inputEntry, currentTime, ip, userAgent, capabilities);
 
-            log.trace("forwardBatch(): converting entry #" + i + " to json");
+            LOGGER.trace("forwardBatch(): converting entry #" + i + " to json");
 
             String entryJson = this.jsonb.toJson(outputEntry);
 
@@ -132,7 +135,7 @@ public class SplunkForwardingService {
             batchJson.append(entryJson);
         }
 
-        log.debug("forwardBatch(): batchJson.length = " + batchJson.length());
+        LOGGER.debug("forwardBatch(): batchJson.length = " + batchJson.length());
 
         return batchJson.toString();
     }

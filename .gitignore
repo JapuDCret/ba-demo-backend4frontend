@@ -43,7 +43,7 @@ crashlytics-build.properties
 
 # Arquillian  (warp)
 lib
-log.txt
+LOGGER.txt
 
 # projects
 .project

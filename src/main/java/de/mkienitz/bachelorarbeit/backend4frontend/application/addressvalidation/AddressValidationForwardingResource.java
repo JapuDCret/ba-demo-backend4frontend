@@ -1,9 +1,6 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.application.addressvalidation;
 
 import org.eclipse.microprofile.opentracing.Traced;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -13,17 +10,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 @Path("/address-validation")
 @RequestScoped
 public class AddressValidationForwardingResource {
 
-    private static final Logger log = LoggerFactory.getLogger(AddressValidationForwardingResource.class.getName());
-
     @Inject
-    private AddressValidationServiceClient addressValidationServiceClient;
+    private AddressValidationForwardingApplicationService service;
 
     @POST
     @Traced(operationName = "AddressValidationForwardingResource.addressValidation")
@@ -32,16 +25,8 @@ public class AddressValidationForwardingResource {
     public Response addressValidation(
             String addressValidationJson
     ) {
-        try {
-            Response addressValidationResponse = addressValidationServiceClient.validateAddress(addressValidationJson);
+        Response addressValidationResponse = service.addressValidation(addressValidationJson);
 
-            log.info("addressValidation(): status = " + addressValidationResponse.getStatus());
-
-            return addressValidationResponse;
-        } catch(Exception e) {
-            log.warn("addressValidation(): an unknown error occurred, e = ", e);
-
-            throw e;
-        }
+        return addressValidationResponse;
     }
 }
