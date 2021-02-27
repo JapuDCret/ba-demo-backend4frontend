@@ -16,11 +16,11 @@ public class CartForwardingResource {
     private CartForwardingApplicationService service;
 
     @GET
-    @Traced(operationName = "CartForwardingResource.getShoppingCart")
+    @Traced(operationName = "CartForwardingResource.forwardGetShoppingCart")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
     @Path("/{shoppingCartId}")
-    public Response getShoppingCart(@PathParam("shoppingCartId") String shoppingCartId) {
+    public Response forwardGetShoppingCart(@PathParam("shoppingCartId") String shoppingCartId) {
         Response shoppingCartResponse = service.getShoppingCart(shoppingCartId);
 
         return shoppingCartResponse;

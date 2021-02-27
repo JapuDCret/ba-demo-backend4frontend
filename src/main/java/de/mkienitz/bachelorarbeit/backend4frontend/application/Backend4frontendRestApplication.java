@@ -1,9 +1,14 @@
-package de.mkienitz.bachelorarbeit.backend4frontend;
+package de.mkienitz.bachelorarbeit.backend4frontend.application;
 
 import de.mkienitz.bachelorarbeit.backend4frontend.application.addressvalidation.AddressValidationForwardingResource;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.addressvalidation.AddressValidationServiceClientFactory;
 import de.mkienitz.bachelorarbeit.backend4frontend.application.cart.CartForwardingResource;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.cart.CartServiceClientFactory;
 import de.mkienitz.bachelorarbeit.backend4frontend.application.localization.LocalizationForwardingResource;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.localization.LocalizationServiceClientFactory;
 import de.mkienitz.bachelorarbeit.backend4frontend.application.order.OrderForwardingResource;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.order.OrderServiceClientFactory;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.splunk.SplunkClientFactory;
 import de.mkienitz.bachelorarbeit.backend4frontend.application.splunk.SplunkForwardingResource;
 import de.mkienitz.bachelorarbeit.backend4frontend.application.telemetry.TelemetryForwardingResource;
 import org.slf4j.Logger;
@@ -58,11 +63,22 @@ public class Backend4frontendRestApplication extends Application {
         Set<Class<?>> s = new HashSet<Class<?>>();
 
         s.add(CORSFilter.class);
+
         s.add(AddressValidationForwardingResource.class);
+        s.add(AddressValidationServiceClientFactory.class);
+
         s.add(CartForwardingResource.class);
+        s.add(CartServiceClientFactory.class);
+
         s.add(LocalizationForwardingResource.class);
+        s.add(LocalizationServiceClientFactory.class);
+
         s.add(OrderForwardingResource.class);
+        s.add(OrderServiceClientFactory.class);
+
         s.add(SplunkForwardingResource.class);
+        s.add(SplunkClientFactory.class);
+
         s.add(TelemetryForwardingResource.class);
 
         return s;

@@ -1,12 +1,11 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.application.splunk;
 
-import de.mkienitz.bachelorarbeit.backend4frontend.Backend4frontendRestApplication;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.Backend4frontendRestApplication;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -16,12 +15,13 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
-@ApplicationScoped
+// can't use ApplicationScoped directly on class, since it's a CDI-managed Producer
 public class SplunkClientFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SplunkClientFactory.class.getName());
 
-    @Produces
+    @javax.enterprise.inject.Produces
+    @ApplicationScoped
     public SplunkClient createClient() throws MalformedURLException, NoSuchAlgorithmException, KeyManagementException {
         URI splunkHecUri = URI.create(System.getenv(Backend4frontendRestApplication.ENVVAR_SPLUNK_HEC_URL));
 

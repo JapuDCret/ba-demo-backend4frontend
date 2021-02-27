@@ -15,12 +15,12 @@ public class CartForwardingApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CartForwardingApplicationService.class.getName());
 
     @Inject
-    private CartServiceClient cartServiceClient;
+    private CartServiceClient client;
 
     @Traced(operationName = "CartForwardingApplicationService.getShoppingCart")
     public Response getShoppingCart(String shoppingCartId) {
         try {
-            Response getShoppingCartResponse = cartServiceClient.getShoppingCart(shoppingCartId);
+            Response getShoppingCartResponse = client.getShoppingCart(shoppingCartId);
 
             LOGGER.info("getShoppingCart(): status = " + getShoppingCartResponse.getStatus());
 

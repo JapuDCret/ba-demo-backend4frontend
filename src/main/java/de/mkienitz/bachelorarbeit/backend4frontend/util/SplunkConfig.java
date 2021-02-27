@@ -1,11 +1,12 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.util;
 
-import de.mkienitz.bachelorarbeit.backend4frontend.Backend4frontendRestApplication;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.Backend4frontendRestApplication;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.splunk.SplunkClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * SplunkConfig is used by {@link de.mkienitz.bachelorarbeit.backend4frontend.application.splunk.SplunkClient} through the {@link org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam} annotation
+ * SplunkConfig is used by {@link SplunkClient} through the {@link org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam} annotation
  */
 @SuppressWarnings("unused")
 public class SplunkConfig {

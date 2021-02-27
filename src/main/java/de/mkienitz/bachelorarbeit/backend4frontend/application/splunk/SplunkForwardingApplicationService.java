@@ -29,7 +29,7 @@ public class SplunkForwardingApplicationService {
     private UserAgentParser parser;
 
     @Inject
-    private SplunkClient splunkClient;
+    private SplunkClient client;
 
     @PostConstruct
     public void init() throws RuntimeException {
@@ -89,7 +89,7 @@ public class SplunkForwardingApplicationService {
 
         LOGGER.info("forwardLog(): forwarding to Splunk");
 
-        Response splunkResponse = splunkClient.postEvent(outputEntry);
+        Response splunkResponse = client.postEvent(outputEntry);
 
         LOGGER.info("forwardLog(): splunkResponse.status = " + splunkResponse.getStatus());
 
@@ -102,7 +102,7 @@ public class SplunkForwardingApplicationService {
 
         LOGGER.info("forwardBatch(): forwarding to Splunk");
 
-        Response splunkResponse = splunkClient.postBatch(batchJson.toString());
+        Response splunkResponse = client.postBatch(batchJson.toString());
 
         LOGGER.info("forwardBatch(): splunkResponse.status = " + splunkResponse.getStatus());
 

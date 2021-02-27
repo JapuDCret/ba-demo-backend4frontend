@@ -34,7 +34,7 @@ public class SplunkForwardingResource {
     @Traced(value = false)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Accepts a new log entry and forwards it to Splunk")
-    public Response log(
+    public Response forwardLog(
             @Context HttpServletRequest servletRequest,
             @Context HttpHeaders headers,
             @NotNull SplunkInputEntry inputEntry
@@ -54,7 +54,7 @@ public class SplunkForwardingResource {
     @Traced(value = false)
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(description = "Accepts a new log entry and forwards it to Splunk")
-    public Response logBatch(
+    public Response forwardLogBatch(
             @Context HttpServletRequest servletRequest,
             @Context HttpHeaders headers,
             @NotNull List<SplunkInputEntry> batch

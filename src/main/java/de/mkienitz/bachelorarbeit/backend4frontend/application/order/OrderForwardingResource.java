@@ -19,10 +19,10 @@ public class OrderForwardingResource {
     private OrderForwardingApplicationService service;
 
     @POST
-    @Traced(operationName = "OrderForwardingResource.order")
+    @Traced(operationName = "OrderForwardingResource.forwardOrder")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-    public Response order(
+    public Response forwardOrder(
             String orderJson
     ) {
         Response orderResponse = service.order(orderJson);

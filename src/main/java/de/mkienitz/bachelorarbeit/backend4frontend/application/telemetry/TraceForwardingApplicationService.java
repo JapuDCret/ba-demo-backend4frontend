@@ -1,6 +1,6 @@
 package de.mkienitz.bachelorarbeit.backend4frontend.application.telemetry;
 
-import de.mkienitz.bachelorarbeit.backend4frontend.Backend4frontendRestApplication;
+import de.mkienitz.bachelorarbeit.backend4frontend.application.Backend4frontendRestApplication;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.OTelExportedTrace;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.attribute.*;
 import de.mkienitz.bachelorarbeit.backend4frontend.domain.otel.exporter.ExporterSpanData;
@@ -40,15 +40,15 @@ public class TraceForwardingApplicationService {
     private JaegerGrpcSpanExporter exporter;
 
     @PostConstruct
-    public void postConstruct() {
-        LOGGER.debug("postConstruct(): initializing JaegerGrpcSpanExporter");
+    public void init() {
+        LOGGER.debug("init(): initializing JaegerGrpcSpanExporter");
 
         String exportHost = System.getenv(Backend4frontendRestApplication.ENVVAR_OTEL_EXPORT_HOST);
         String exportPort = System.getenv(Backend4frontendRestApplication.ENVVAR_OTEL_EXPORT_PORT);
 
         String exportEndpoint = exportHost + ":" + exportPort;
 
-        LOGGER.info("postConstruct(): exportEndpoint = " + exportEndpoint);
+        LOGGER.info("init(): exportEndpoint = " + exportEndpoint);
 
         JaegerGrpcSpanExporter exporter =
                 JaegerGrpcSpanExporter.builder()
@@ -56,7 +56,7 @@ public class TraceForwardingApplicationService {
                         .setServiceName("frontend")
                         .build();
 
-        LOGGER.debug("postConstruct(): successfully initialized JaegerGrpcSpanExporter");
+        LOGGER.debug("init(): successfully initialized JaegerGrpcSpanExporter");
 
         this.exporter = exporter;
     }

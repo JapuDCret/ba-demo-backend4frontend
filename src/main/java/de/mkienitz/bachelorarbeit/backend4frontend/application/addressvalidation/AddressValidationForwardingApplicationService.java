@@ -14,14 +14,14 @@ public class AddressValidationForwardingApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddressValidationForwardingApplicationService.class.getName());
 
     @Inject
-    private AddressValidationServiceClient addressValidationServiceClient;
+    private AddressValidationServiceClient client;
 
     @Traced(operationName = "AddressValidationForwardingApplicationService.addressValidation")
     public Response addressValidation(
             String addressValidationJson
     ) {
         try {
-            Response addressValidationResponse = addressValidationServiceClient.validateAddress(addressValidationJson);
+            Response addressValidationResponse = client.validateAddress(addressValidationJson);
 
             LOGGER.info("addressValidation(): status = " + addressValidationResponse.getStatus());
 

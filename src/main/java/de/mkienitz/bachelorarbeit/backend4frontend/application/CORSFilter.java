@@ -1,4 +1,4 @@
-package de.mkienitz.bachelorarbeit.backend4frontend;
+package de.mkienitz.bachelorarbeit.backend4frontend.application;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;

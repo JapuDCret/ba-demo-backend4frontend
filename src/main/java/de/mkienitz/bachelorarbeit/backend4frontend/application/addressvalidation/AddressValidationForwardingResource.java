@@ -19,10 +19,10 @@ public class AddressValidationForwardingResource {
     private AddressValidationForwardingApplicationService service;
 
     @POST
-    @Traced(operationName = "AddressValidationForwardingResource.addressValidation")
+    @Traced(operationName = "AddressValidationForwardingResource.forwardAddressValidation")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-    public Response addressValidation(
+    public Response forwardAddressValidation(
             String addressValidationJson
     ) {
         Response addressValidationResponse = service.addressValidation(addressValidationJson);

@@ -15,12 +15,12 @@ public class LocalizationForwardingApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalizationForwardingApplicationService.class.getName());
 
     @Inject
-    private LocalizationServiceClient localizationServiceClient;
+    private LocalizationServiceClient client;
 
     @Traced(operationName = "LocalizationForwardingApplicationService.getTranslations")
     public Response getTranslations() {
         try {
-            Response getTranslationResponse = localizationServiceClient.getTranslations();
+            Response getTranslationResponse = client.getTranslations();
 
             LOGGER.info("getTranslations(): status = " + getTranslationResponse.getStatus());
 

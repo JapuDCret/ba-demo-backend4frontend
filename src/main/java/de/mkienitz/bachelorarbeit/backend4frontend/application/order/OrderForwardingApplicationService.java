@@ -14,14 +14,14 @@ public class OrderForwardingApplicationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderForwardingApplicationService.class.getName());
 
     @Inject
-    private OrderServiceClient orderServiceClient;
+    private OrderServiceClient client;
 
     @Traced(operationName = "OrderForwardingApplicationService.order")
     public Response order(
             String orderJson
     ) {
         try {
-            Response orderResponse = orderServiceClient.order(orderJson);
+            Response orderResponse = client.order(orderJson);
 
             LOGGER.info("order(): status = " + orderResponse.getStatus());
 

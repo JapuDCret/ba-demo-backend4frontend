@@ -19,10 +19,10 @@ public class LocalizationForwardingResource {
     private LocalizationForwardingApplicationService service;
 
     @GET
-    @Traced(operationName = "LocalizationForwardingResource.getTranslations")
+    @Traced(operationName = "LocalizationForwardingResource.forwardGetTranslations")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-    public Response getTranslations() {
+    public Response forwardGetTranslations() {
         Response translationResponse = service.getTranslations();
 
         return translationResponse;
